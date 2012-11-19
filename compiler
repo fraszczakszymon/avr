@@ -16,8 +16,8 @@ fi
 if [ -f "./"$DIR"/"$FILENAME".hex" ]; then
   echo "\033[32mPlik .hex został utworzony pomyślnie"
   tput sgr0
-  read -p "Chcesz zaprogramowac uC ATMega8 skompilowanym programem? (t/n) " RESP
-  if [ "$RESP" = "t" ]; then
+  read -p "Chcesz zaprogramowac uC ATMega8 skompilowanym programem? (t/n) " AVR
+  if [ "$AVR" = "t" ]; then
     avrdude -p atmega8 -c usbasp -U flash:w:$DIR"/main.hex"
   fi
 else
