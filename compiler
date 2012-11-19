@@ -14,14 +14,14 @@ if [ -f "./"$DIR"/"$FILENAME".o" ]; then
 fi
 
 if [ -f "./"$DIR"/"$FILENAME".hex" ]; then
-  echo "\033[32mPlik $FILENAME.hex został utworzony pomyślnie\n"
+  echo "\033[32mPlik $FILENAME.hex został utworzony pomyślnie"
   tput sgr0
-  read -p "Chcesz zaprogramowac uC ATMega8 skompilowanym programem? (t/n) " AVR
+  read -p "Chcesz zaprogramowac mikrokontroler skompilowanym programem? (t/N) " AVR
   if [ "$AVR" = "t" ]; then
     sudo avrdude -p atmega8 -c usbasp -U flash:w:$DIR"/main.hex"
   fi
   
-  read -p "Chcesz zapisac zmiany plikow na githubie? (t/n) " GIT
+  read -p "Chcesz zapisac zmiany plikow na githubie? (t/N) " GIT
   if [ "$GIT" = "t" ]; then
     git add "./"$DIR"/"
     read -p "Podaj tresc nowego commita: " COMMIT
