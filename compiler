@@ -24,3 +24,10 @@ else
   echo "\033[31mWystapil blad podczas tworzenia pliku .hex"
   tput sgr0
 fi
+  
+read -p "Chcesz zapisac zmiany plikow na githubie? (t/n) " GIT
+if [ "$GIT" = "t" ]; then
+  git add "./"$DIR"/"
+  read -p "Podaj tresc nowego commita: " COMMIT
+  git commit -m "$COMMIT"
+fi
