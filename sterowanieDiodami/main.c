@@ -13,14 +13,14 @@ int main(void)
   while (1) {
     if(PIND & _BV(0)) {
       status = 0;
-      _delay_ms(40);
+      _delay_ms(50);
     } else {
       if (status == 0) {
         PORTB ^=_BV(0);
         PORTB ^=_BV(1);
         status = 1;
       }
-      _delay_ms(40);
+      _delay_ms(50);
     }
   }
 }
