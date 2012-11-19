@@ -4,20 +4,19 @@
 int main(void)
 {
   int status = 0;
-  DDRB  |= _BV(0)|_BV(1);
-  PORTB |=  _BV(0);
-  PORTB &= ~_BV(1);
-  DDRD  &= ~_BV(0);
-  PORTD |=  _BV(0);
+  DDRB = 0x03;
+  PORTB = 0x01;
+  DDRD = 0x00;
+  PORTD = 0x01;
 
   while (1) {
-    if(PIND & _BV(0)) {
+    if(PIND & 0x01) {
       status = 0;
       _delay_ms(50);
     } else {
       if (status == 0) {
-        PORTB ^=_BV(0);
-        PORTB ^=_BV(1);
+        PORTB ^= 0x01;
+        PORTB ^= 0x02;
         status = 1;
       }
       _delay_ms(50);
