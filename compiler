@@ -4,6 +4,14 @@ FILE=${1##*/}
 FILENAME=${FILE%.*}
 DIR=$(dirname ${1})
 
+if [ -f "./"$DIR"/"$FILENAME".o" ]; then
+  rm "./"$DIR"/"$FILENAME".o"
+fi
+
+if [ -f "./"$DIR"/"$FILENAME".hex" ]; then
+  rm "./"$DIR"/"$FILENAME".hex"
+fi
+
 echo "\033[33mKompilowanie oraz tworzenie pliku $FILENAME.hex..."
 tput sgr0
 avr-gcc -mmcu=atmega8 -Os -DF_CPU=8000000UL -Wall "./"$DIR"/"$FILE -o "./"$DIR"/"$FILENAME".o"
@@ -13,19 +21,29 @@ if [ -f "./"$DIR"/"$FILENAME".o" ]; then
   rm "./"$DIR"/"$FILENAME".o"
 fi
 
+PROGRAMMER=$(lsusb | grep "16c0:05dc")
+GITCHANGED=$(git diff $DIR)
+
 if [ -f "./"$DIR"/"$FILENAME".hex" ]; then
   echo "\033[32mPlik $FILENAME.hex został utworzony pomyślnie"
   tput sgr0
-  read -p "Chcesz zaprogramowac mikrokontroler skompilowanym programem? (t/N) " AVR
-  if [ "$AVR" = "t" ]; then
-    sudo avrdude -p atmega8 -c usbasp -U flash:w:$DIR"/main.hex"
+  if [ -n "$PROGRAMMER" ]; then
+    read -p "Chcesz zaprogramowac mikrokontroler skompilowanym programem? (t/N) " AVR
+    if [ "$AVR" = "t" ]; then
+      sudo avrdude -p atmega8 -c usbasp -U flash:w:$DIR"/main.hex"
+    fi
   fi
   
-  read -p "Chcesz zapisac zmiany plikow na githubie? (t/N) " GIT
-  if [ "$GIT" = "t" ]; then
-    git add "./"$DIR"/"
-    read -p "Podaj tresc nowego commita: " COMMIT
-    git commit -m "$COMMIT"
+  if [ -n "$GITCHANGED" ]; then
+    read -p "Chcesz zapisac zmiany plikow na githubie? (t/N) " GIT
+    if [ "$GIT" = "t" ]; then
+      git add "./"$DIR"/"
+      read -p "Podaj tresc nowego commita: " COMMIT
+      git commit -m "$COMMIT"
+    fi
+  else
+    echo "\033[33mZaden z plikow nie zostal zmieniony"
+    tput sgr0
   fi
 else
   echo "\033[31mWystapil blad podczas tworzenia pliku .hex"
