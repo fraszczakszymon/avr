@@ -7,9 +7,9 @@ DIR=$(dirname ${1})
 echo "\033[33mKompilowanie oraz tworzenie pliku .hex..."
 tput sgr0
 avr-gcc -mmcu=atmega8 -Os -DF_CPU=8000000UL -Wall "./"$DIR"/"$FILE -o "./"$DIR"/"$FILENAME".o"
-avr-objcopy -O ihex "./"$DIR"/"$FILENAME".o" "./"$DIR"/"$FILENAME".hex"
 
 if [ -f "./"$DIR"/"$FILENAME".o" ]; then
+  avr-objcopy -O ihex "./"$DIR"/"$FILENAME".o" "./"$DIR"/"$FILENAME".hex"
   rm "./"$DIR"/"$FILENAME".o"
 fi
 
@@ -20,14 +20,14 @@ if [ -f "./"$DIR"/"$FILENAME".hex" ]; then
   if [ "$AVR" = "t" ]; then
     avrdude -p atmega8 -c usbasp -U flash:w:$DIR"/main.hex"
   fi
+  
+  read -p "Chcesz zapisac zmiany plikow na githubie? (t/n) " GIT
+  if [ "$GIT" = "t" ]; then
+    git add "./"$DIR"/"
+    read -p "Podaj tresc nowego commita: " COMMIT
+    git commit -m "$COMMIT"
+  fi
 else
   echo "\033[31mWystapil blad podczas tworzenia pliku .hex"
   tput sgr0
-fi
-  
-read -p "Chcesz zapisac zmiany plikow na githubie? (t/n) " GIT
-if [ "$GIT" = "t" ]; then
-  git add "./"$DIR"/"
-  read -p "Podaj tresc nowego commita: " COMMIT
-  git commit -m "$COMMIT"
 fi
