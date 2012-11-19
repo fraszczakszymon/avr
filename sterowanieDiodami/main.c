@@ -7,19 +7,25 @@ int main(void)
   DDRB = 0x03;
   PORTB = 0x01;
   DDRD = 0x00;
-  PORTD = 0x01;
+  PORTD = 0x03;
 
   while (1) {
-    if(PIND & 0x01) {
-      status = 0;
-      _delay_ms(50);
-    } else {
-      if (status == 0) {
-        PORTB ^= 0x01;
-        PORTB ^= 0x02;
-        status = 1;
+    if (PIND & 0x02) {
+      if (PIND & 0x01) {
+        status = 0;
+        _delay_ms(50);
+      } else {
+        if (status == 0) {
+          PORTB ^= 0x01;
+          PORTB ^= 0x02;
+          status = 1;
+        }
+        _delay_ms(50);
       }
-      _delay_ms(50);
+    } else {
+      PORTB ^= 0x01;
+      PORTB ^= 0x02;
+      _delay_ms(300);
     }
   }
 }
