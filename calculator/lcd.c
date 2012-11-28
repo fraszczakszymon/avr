@@ -132,7 +132,7 @@ void lcd_init()
 	lcd_toggle_e();
 	delay_us(2500);           // some displays need this additional delay 
 
-	lcd_instr(LCD_DISP_ON_CURSOR_BLINK);// display on, cursor on, blink char      
+	lcd_instr(LCD_DISP_ON);   // display on, cursor off     
 	lcd_toggle_e();
 	delay_us(2500);           // some displays need this additional delay 
 
@@ -144,7 +144,7 @@ void lcd_init()
  */
 void lcd_setline(uint8_t line)
 {
-    uint8_t addressCounter = 0;
+  uint8_t addressCounter = 0;
 	switch(line)
 	{
 		case 0: addressCounter = LCD_START_LINE1; break;

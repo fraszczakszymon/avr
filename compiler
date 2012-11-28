@@ -6,7 +6,7 @@ DIR=$(dirname ${1})
 LIBS=""
 
 if [ $2 ]; then
-  LIBS=$2
+  LIBS=$2" "$3" "$4" "$5" "$6
 fi
 
 if [ -f "./"$DIR"/"$FILENAME".o" ]; then
@@ -37,6 +37,9 @@ if [ -f "./"$DIR"/"$FILENAME".hex" ]; then
     if [ "$AVR" = "t" ]; then
       sudo avrdude -p atmega8 -c usbasp -U flash:w:$DIR"/main.hex"
     fi
+  else 
+    echo "\033[31mBrak programatora AVR"
+    tput sgr0
   fi
   
   if [ -n "$GITCHANGED" ]; then

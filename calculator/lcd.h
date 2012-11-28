@@ -85,7 +85,7 @@
 #define LCD_DDR(x) 		           (*(&x - 1))
 
 //delay functions
-#define F_CPU                    8000000UL//Your clock speed in Hz (16Mhz here)
+#define F_CPU                    8000000UL//Your clock speed in Hz (8Mhz here)
 #define LOOP_CYCLES              8        //Number of cycles that the loop takes
 #define delay_us(num)            delay_int(num/(LOOP_CYCLES*(1/(F_CPU/1000000.0))))
 
