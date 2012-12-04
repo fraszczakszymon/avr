@@ -1,0 +1,12 @@
+stack
+list
+queue
+@złożoność
+@grafy
+@drzewa (chodzenie po drzewach)
+@sortowanie
+factorial
+fibonacci 
+malloc, calloc
+
+- dlaczego taka różnica między listą a kolejką (w kodzie)?
