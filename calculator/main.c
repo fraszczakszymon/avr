@@ -8,7 +8,6 @@ int main(void)
   int keyboardPushed = 0;
   int confirmed = 0;
   int col = 0;
-  int count = 0;
   int key = -1;
   int keyboard[16] = {
      7, 8, 9, -6,
@@ -22,7 +21,6 @@ int main(void)
     0b11111011,
     0b11110111
   };
-  char display[255] = {0};
 
   lcd_init();
   lcd_clrscr();
@@ -35,12 +33,9 @@ int main(void)
     keyboardPushed = isKeyboardPushed();
 
     if (keyboardPushed == 1 && confirmed == 0 && key != -1) {
-      count++;
       confirmed = 1;
-      lcd_clrscr();
-      lcd_home();
-      sprintf(display, "Klawisz: %d - %d", keyboard[key], count);
-      lcd_string(display);
+      pushedKey(keyboard[key]);
+      display();
     } else if (keyboardPushed == 0 && confirmed == 1) {
       confirmed = 0;
     }
