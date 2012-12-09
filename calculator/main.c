@@ -35,7 +35,6 @@ int main(void)
     if (keyboardPushed == 1 && confirmed == 0 && key != -1) {
       confirmed = 1;
       pushedKey(keyboard[key]);
-      display();
     } else if (keyboardPushed == 0 && confirmed == 1) {
       confirmed = 0;
     }

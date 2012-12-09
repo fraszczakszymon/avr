@@ -4,13 +4,11 @@
 
 #define MODE_MFN  50
 #define MODE_FN   100
-#define MODE_DFN  150
-#define MODE_SN   200
-#define MODE_DSN  250
-#define MODE_ADD  300
-#define MODE_SUB  400
-#define MODE_MUL  500
-#define MODE_DIV  600
+#define MODE_ADD  200
+#define MODE_SUB  300
+#define MODE_MUL  400
+#define MODE_DIV  500
+#define MODE_RES  600
 
 int isKeyboardPushed();
 int detectKey(int);
