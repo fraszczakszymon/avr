@@ -3,7 +3,7 @@
 #include <avr/io.h> 
 
 int MODE = MODE_FN;
-int DATA[] = {0, 0, 0};
+double DATA[] = {0, 0, 0};
 
 int isKeyboardPushed() {
   return ((!(PINB & 0x10)) || (!(PINB & 0x20)) || (!(PINB & 0x40)) || (!(PINB & 0x80)));
@@ -153,22 +153,24 @@ void changeMode(int key)
 void display()
 {
   char line[16] = {0};
-  lcd_clrscr();
 
   if (MODE != MODE_RES) {
     if (DATA[0] > 0) {
       lcd_gotoxy(0,0);
-      sprintf(line, "%16d", DATA[0]);
+      sprintf(line, "%16.10g", DATA[0]);
       lcd_string(line);
     }
     if (DATA[1] > 0) {
       lcd_gotoxy(1,1);
-      sprintf(line, "%15d", DATA[1]);
+      sprintf(line, "%15.10g", DATA[1]);
       lcd_string(line);
     }
   } else {
+    lcd_gotoxy(0,0);
+    sprintf(line, " %7.2g+%7.2g", DATA[0], DATA[1]);
+    lcd_string(line);
     lcd_gotoxy(1,1);
-    sprintf(line, "%15d", DATA[2]);
+    sprintf(line, "%15.10g", DATA[2]);
     lcd_string(line);
   }
 

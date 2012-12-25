@@ -19,7 +19,8 @@ fi
 
 echo "\033[33mKompilowanie oraz tworzenie pliku $FILENAME.hex..."
 tput sgr0
-avr-gcc -mmcu=atmega8 -Os -DF_CPU=8000000UL -Wall -Wl,-u,vfprintf -lprintf_flt -lm "./"$DIR"/"$FILE $LIBS -o "./"$DIR"/"$FILENAME".o"
+avr-gcc -mmcu=atmega8 -Os -DF_CPU=8000000UL "./"$DIR"/"$FILE $LIBS -o "./"$DIR"/"$FILENAME".o"  -Wall -Wl,-u,vfprintf -lprintf_flt -lm
+# -Wl,-u,vfprintf -lprintf_flt -lm
 
 if [ -f "./"$DIR"/"$FILENAME".o" ]; then
   avr-objcopy -O ihex "./"$DIR"/"$FILENAME".o" "./"$DIR"/"$FILENAME".hex"

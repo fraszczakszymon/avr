@@ -19,14 +19,14 @@
 #define LCD_DATA1_PORT           PORTD   // port for 4bit data bit 1 		//D6
 #define LCD_DATA2_PORT           PORTD   // port for 4bit data bit 2 		//D7
 #define LCD_DATA3_PORT           PORTD   // port for 4bit data bit 3 		//B0
-#define LCD_DATA0_PIN            0       // pin for 4bit data bit 0  		
-#define LCD_DATA1_PIN            1       // pin for 4bit data bit 1  
-#define LCD_DATA2_PIN            2       // pin for 4bit data bit 2  
-#define LCD_DATA3_PIN            3       // pin for 4bit data bit 3  
+#define LCD_DATA0_PIN            3       // pin for 4bit data bit 0  		
+#define LCD_DATA1_PIN            2       // pin for 4bit data bit 1  
+#define LCD_DATA2_PIN            1       // pin for 4bit data bit 2  
+#define LCD_DATA3_PIN            0       // pin for 4bit data bit 3  
 #define LCD_RS_PORT              PORTD   // port for RS line         		//D3 poz:1 connector
-#define LCD_RS_PIN               4       // pin  for RS line         
+#define LCD_RS_PIN               5       // pin  for RS line         
 #define LCD_E_PORT               PORTD   // port for Enable line     		//D4 poz:2 connector
-#define LCD_E_PIN                5       // pin  for Enable line     
+#define LCD_E_PIN                4       // pin  for Enable line     
 //#define LCD_RW_PORT              LCD_PORT // port for RW line UNUSED - we only WRITE
 //#define LCD_RW_PIN               5        // pin  for RW line UNUSED - we only WRITE
 //---------------------------------------------------------------------------------------------------//
