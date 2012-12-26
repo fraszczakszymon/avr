@@ -1,8 +1,12 @@
-#include "calculator.h"
+#include <avr/io.h>
 #include "lcd.h"
-#include <avr/io.h> 
+#include "calculator.h"
 
-int MODE = MODE_FN;
+int DATA_MODE = DATA_MODE_FIRST_NUMBER;
+int MODE = 0;
+int PUT[] = {0, 0};
+int SIGN = 1;
+double DOT_MODE = 0;
 double DATA[] = {0, 0, 0};
 
 int isKeyboardPushed() {
@@ -45,155 +49,154 @@ void pushedKey(int key)
     case 7:
     case 8:
     case 9:
-      pushedNumber(key);
+      pushNumber(key);
       break;
     case -1:
-      setDotMode();
+      if (DOT_MODE == 0) {
+        DOT_MODE = 1;
+      }
       break;
     case -2:
-      calculateResult();
+      if (PUT[0] == 1 && PUT[1] == 1) {
+        calculateResult();
+      }
       break;
     case -3:
     case -4:
     case -5:
     case -6:
-      if (DATA[1] == 0) {
-        changeMode(key);
-      } else {
-        calculateResult();
-      }
-      break;
-    default:
+      changeMode(key);
       break;
   }
   display();
 }
 
-void pushedNumber(int key)
+void pushNumber(int key)
 {
-  switch (MODE)
-  {
-    case MODE_MFN:
-      if (DATA[0] == 0) {
-        DATA[0] = -key;
-      } else {
-        DATA[0] = DATA[0]*10 - key;
-      }
+  switch (DATA_MODE) {
+    case DATA_MODE_FIRST_NUMBER:
+      setNumber(0, key);
       break;
-    case MODE_FN:
-      if (DATA[0] == 0) {
-        DATA[0] = key;
-      } else {
-        DATA[0] = DATA[0]*10 + key;
-      }
-      break;
-    case MODE_ADD:
-    case MODE_SUB:
-    case MODE_MUL:
-    case MODE_DIV:
-      if (DATA[1] == 0) {
-        DATA[1] = key;
-      } else {
-        DATA[1] = DATA[1]*10 + key;
-      }
-      break;
-    default:
+    case DATA_MODE_SECOND_NUMBER:
+      setNumber(1, key);
       break;
   }
 }
 
-void setDotMode()
+void setNumber(int number, int key)
 {
+  double pushedValue = calculateValue(key);
 
+  if (PUT[number] == 0) {
+    DATA[number] = SIGN * pushedValue;
+    PUT[number] = 1;
+  } else {
+    if (DOT_MODE == 0) {
+      DATA[number] = DATA[number]*10 + pushedValue;
+    } else {
+      DATA[number] = DATA[number] + pushedValue;
+    }
+  }
 }
 
-void calculateResult()
+double calculateValue(int key)
 {
-  switch (MODE)
-  {
-    case MODE_ADD:
-      DATA[2] = DATA[0] + DATA[1];
-      break;
-    case MODE_SUB:
-      DATA[2] = DATA[0] - DATA[1];
-      break;
-    case MODE_MUL:
-      DATA[2] = DATA[0] * DATA[1];
-      break;
-    case MODE_DIV:
-      DATA[2] = DATA[0] / DATA[1];
-      break;
+  if (DOT_MODE != 0) {
+    DOT_MODE *= 10;
+    return SIGN * key / DOT_MODE;
   }
-  MODE = MODE_RES;
+
+  return key*SIGN;
 }
 
 void changeMode(int key)
 {
-  switch (key)
-  {
+  if (DATA_MODE != DATA_MODE_RESULT && PUT[1] == 1) {
+    calculateResult();
+  }
+
+  if (DATA_MODE == DATA_MODE_RESULT) {
+    DATA[0] = DATA[2];
+    DATA[1] = 0;
+    PUT[1] = 0;
+  }
+
+  switch (key) {
     case -3:
-      MODE = MODE_ADD;
+      MODE = MODE_ADDITION;
       break;
     case -4:
-      if (DATA[0] != 0) {
-        MODE = MODE_SUB;
+      if (PUT[0] == 1) {
+        MODE = MODE_SUBTRACTION;
       } else {
-        MODE = MODE_MFN;
+        SIGN = -1;
       }
       break;
     case -5:
-      MODE = MODE_MUL;
+      MODE = MODE_MULTIPLICATION;
       break;
     case -6:
-      MODE = MODE_DIV;
+      MODE = MODE_DIVISION;
       break;
   }
+  if (PUT[0] == 1) {
+    DATA_MODE = DATA_MODE_SECOND_NUMBER;
+    DOT_MODE = 0;
+    SIGN = 1;
+  }
+}
+
+void calculateResult()
+{
+  switch (MODE) {
+    case MODE_ADDITION:
+      DATA[2] = DATA[0] + DATA[1];
+      break;
+    case MODE_SUBTRACTION:
+      DATA[2] = DATA[0] - DATA[1];
+      break;
+    case MODE_MULTIPLICATION:
+      DATA[2] = DATA[0] * DATA[1];
+      break;
+    case MODE_DIVISION:
+      DATA[2] = DATA[0] / DATA[1];
+      break;
+  }
+  DATA_MODE = DATA_MODE_RESULT;
 }
 
 void display()
 {
   char line[16] = {0};
 
-  if (MODE != MODE_RES) {
-    if (DATA[0] > 0) {
+  if (DATA_MODE != DATA_MODE_RESULT) {
+    if (PUT[0] == 1) {
       lcd_gotoxy(0,0);
       sprintf(line, "%16.10g", DATA[0]);
       lcd_string(line);
     }
-    if (DATA[1] > 0) {
-      lcd_gotoxy(1,1);
+    lcd_gotoxy(1,1);
+    if (PUT[1] == 1) {
       sprintf(line, "%15.10g", DATA[1]);
-      lcd_string(line);
+    } else {
+      sprintf(line, "               ");
     }
+    lcd_string(line);
   } else {
     lcd_gotoxy(0,0);
-    sprintf(line, " %7.2g+%7.2g", DATA[0], DATA[1]);
+    sprintf(line, " %7.2g%c%7.2g", DATA[0], MODE, DATA[1]);
     lcd_string(line);
     lcd_gotoxy(1,1);
     sprintf(line, "%15.10g", DATA[2]);
     lcd_string(line);
   }
 
-  if (MODE >= 200) {
-    lcd_gotoxy(0,1);
-    switch (MODE)
-    {
-      case MODE_ADD:
-        sprintf(line, "+");
-        break;
-      case MODE_SUB:
-        sprintf(line, "-");
-        break;
-      case MODE_MUL:
-        sprintf(line, "*");
-        break;
-      case MODE_DIV:
-        sprintf(line, "/");
-        break;
-      case MODE_RES:
-        sprintf(line, "=");
-        break;
-    }
+  lcd_gotoxy(0,1);
+  if (DATA_MODE == DATA_MODE_RESULT) {
+    sprintf(line, "=");
+    lcd_string(line);
+  } else if (MODE != 0) {
+    sprintf(line, "%c", MODE);
     lcd_string(line);
   }
 }

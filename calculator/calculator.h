@@ -2,19 +2,22 @@
 
 #include <avr/io.h>
 
-#define MODE_MFN  50
-#define MODE_FN   100
-#define MODE_ADD  200
-#define MODE_SUB  300
-#define MODE_MUL  400
-#define MODE_DIV  500
-#define MODE_RES  600
+#define DATA_MODE_FIRST_NUMBER    1
+#define DATA_MODE_SECOND_NUMBER   2
+#define DATA_MODE_RESULT          3
+
+#define MODE_ADDITION             43
+#define MODE_SUBTRACTION          45
+#define MODE_MULTIPLICATION       42
+#define MODE_DIVISION             47
 
 int isKeyboardPushed();
 int detectKey(int);
+double calculateValue(int);
 void pushedKey(int);
-void pushedNumber(int);
+void pushNumber(int);
 void setDotMode();
-void calculateResult();
+void setNumber(int, int);
 void changeMode(int);
+void calculateResult();
 void display();
