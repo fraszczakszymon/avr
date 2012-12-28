@@ -234,6 +234,13 @@ void lcd_clrscr(void)
 	delay_us(500);
 }
 
+void lcd_clrline(int lineIndex)
+{
+  char line[16] = {"                "};
+  lcd_gotoxy(0, lineIndex);
+  lcd_string(line);
+}
+
 /**
  * Set cursor to home position
  */

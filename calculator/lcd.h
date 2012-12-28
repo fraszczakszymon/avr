@@ -108,5 +108,6 @@ void lcd_string(char *text);
 void lcd_string_format(char *szFormat, ...);
 void lcd_gotoxy(uint8_t x, uint8_t y);
 void lcd_clrscr(void);
+void lcd_clrline(int);
 void lcd_home(void);
 void delay_int(unsigned long delay);

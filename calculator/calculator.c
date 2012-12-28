@@ -6,7 +6,7 @@ int DATA_MODE = DATA_MODE_FIRST_NUMBER;
 int MODE = 0;
 int PUT[] = {0, 0};
 int SIGN = 1;
-double DOT_MODE = 0;
+int DOT_MODE = 0;
 double DATA[] = {0, 0, 0};
 
 int isKeyboardPushed() {
@@ -49,7 +49,9 @@ void pushedKey(int key)
     case 7:
     case 8:
     case 9:
-      pushNumber(key);
+      if (DATA_MODE != DATA_MODE_RESULT) {
+        setNumber(DATA_MODE, key);
+      }
       break;
     case -1:
       if (DOT_MODE == 0) {
@@ -71,24 +73,12 @@ void pushedKey(int key)
   display();
 }
 
-void pushNumber(int key)
-{
-  switch (DATA_MODE) {
-    case DATA_MODE_FIRST_NUMBER:
-      setNumber(0, key);
-      break;
-    case DATA_MODE_SECOND_NUMBER:
-      setNumber(1, key);
-      break;
-  }
-}
-
 void setNumber(int number, int key)
 {
   double pushedValue = calculateValue(key);
 
   if (PUT[number] == 0) {
-    DATA[number] = SIGN * pushedValue;
+    DATA[number] = pushedValue;
     PUT[number] = 1;
   } else {
     if (DOT_MODE == 0) {
@@ -101,12 +91,13 @@ void setNumber(int number, int key)
 
 double calculateValue(int key)
 {
-  if (DOT_MODE != 0) {
+  if (DOT_MODE != 0 && DOT_MODE < 10000) {
     DOT_MODE *= 10;
-    return SIGN * key / DOT_MODE;
+    return SIGN * key / (double) DOT_MODE;
+  } else if (DOT_MODE == 0) {
+    return (double) key*SIGN;
   }
-
-  return key*SIGN;
+  return 0;
 }
 
 void changeMode(int key)
@@ -171,27 +162,27 @@ void display()
 
   if (DATA_MODE != DATA_MODE_RESULT) {
     if (PUT[0] == 1) {
-      lcd_gotoxy(0,0);
-      sprintf(line, "%16.10g", DATA[0]);
+      lcd_gotoxy(0, 0);
+      sprintf(line, " %15.8g", DATA[0]);
       lcd_string(line);
-    }
-    lcd_gotoxy(1,1);
-    if (PUT[1] == 1) {
-      sprintf(line, "%15.10g", DATA[1]);
     } else {
-      sprintf(line, "               ");
+      lcd_clrline(0);
     }
-    lcd_string(line);
+    if (PUT[1] == 1) {
+      lcd_gotoxy(0, 1);
+      sprintf(line, " %15.8g", DATA[1]);
+      lcd_string(line);
+    } else {
+      lcd_clrline(1);
+    }
   } else {
-    lcd_gotoxy(0,0);
-    sprintf(line, " %7.2g%c%7.2g", DATA[0], MODE, DATA[1]);
-    lcd_string(line);
-    lcd_gotoxy(1,1);
-    sprintf(line, "%15.10g", DATA[2]);
+    lcd_clrline(0);
+    lcd_gotoxy(1, 1);
+    sprintf(line, "%15.8g", DATA[2]);
     lcd_string(line);
   }
 
-  lcd_gotoxy(0,1);
+  lcd_gotoxy(0, 1);
   if (DATA_MODE == DATA_MODE_RESULT) {
     sprintf(line, "=");
     lcd_string(line);
