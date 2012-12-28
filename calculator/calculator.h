@@ -12,11 +12,10 @@
 #define MODE_DIVISION             47
 
 int isKeyboardPushed();
-int detectKey(int);
+int getKeyIndex(int);
+void keyHandler(int);
 double calculateValue(int);
-void pushedKey(int);
-void setDotMode();
-void setNumber(int, int);
+void setValue(int, int);
 void changeMode(int);
 void calculateResult();
-void display();
+void displayValues();

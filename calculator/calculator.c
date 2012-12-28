@@ -4,38 +4,35 @@
 
 int DATA_MODE = DATA_MODE_FIRST_NUMBER;
 int MODE = 0;
-int PUT[] = {0, 0};
+int STATUS[] = {0, 0};
 int SIGN = 1;
-int DOT_MODE = 0;
-double DATA[] = {0, 0, 0};
+int DOT_DIVIDER = 0;
+double VALUES[] = {0, 0, 0};
 
 int isKeyboardPushed() {
   return ((!(PINB & 0x10)) || (!(PINB & 0x20)) || (!(PINB & 0x40)) || (!(PINB & 0x80)));
 }
 
-int detectKey(int col)
+int getKeyIndex(int col)
 {
-  int row = -1;
+  int row;
+
   if (!(PINB & 0x10)) {
     row = 0;
-  }
-  if (!(PINB & 0x20)) {
+  } else if (!(PINB & 0x20)) {
     row = 1;
-  }
-  if (!(PINB & 0x40)) {
+  } else if (!(PINB & 0x40)) {
     row = 2;
-  }
-  if (!(PINB & 0x80)) {
+  } else if (!(PINB & 0x80)) {
     row = 3;
-  }
-  if (row == -1) {
+  } else {
     return -1;
   }
 
   return row*4 + col;
 }
 
-void pushedKey(int key)
+void keyHandler(int key)
 {
   switch (key)
   {
@@ -50,127 +47,145 @@ void pushedKey(int key)
     case 8:
     case 9:
       if (DATA_MODE != DATA_MODE_RESULT) {
-        setNumber(DATA_MODE, key);
+        setValue(DATA_MODE, key);
       }
       break;
     case -1:
-      if (DOT_MODE == 0) {
-        DOT_MODE = 1;
+      if (DOT_DIVIDER == 0) {
+        DOT_DIVIDER = 1;
       }
       break;
     case -2:
-      if (PUT[0] == 1 && PUT[1] == 1) {
+      if (STATUS[0] == 1 && STATUS[1] == 1) {
         calculateResult();
       }
       break;
-    case -3:
-    case -4:
-    case -5:
-    case -6:
+    case 43:
+    case 45:
+    case 42:
+    case 47:
       changeMode(key);
       break;
   }
-  display();
-}
 
-void setNumber(int number, int key)
-{
-  double pushedValue = calculateValue(key);
-
-  if (PUT[number] == 0) {
-    DATA[number] = pushedValue;
-    PUT[number] = 1;
-  } else {
-    if (DOT_MODE == 0) {
-      DATA[number] = DATA[number]*10 + pushedValue;
-    } else {
-      DATA[number] = DATA[number] + pushedValue;
-    }
-  }
+  displayValues();
 }
 
 double calculateValue(int key)
 {
-  if (DOT_MODE != 0 && DOT_MODE < 10000) {
-    DOT_MODE *= 10;
-    return SIGN * key / (double) DOT_MODE;
-  } else if (DOT_MODE == 0) {
-    return (double) key*SIGN;
+  if (DOT_DIVIDER != 0 && DOT_DIVIDER < 10000) {
+    DOT_DIVIDER *= 10;
+    return SIGN * key / (double) DOT_DIVIDER;
+  } else if (DOT_DIVIDER == 0) {
+    return key*SIGN;
   }
   return 0;
 }
 
+void setValue(int valueIndex, int key)
+{
+  double pushedValue = calculateValue(key);
+
+  if (STATUS[valueIndex] == 0) {
+    VALUES[valueIndex] = pushedValue;
+    STATUS[valueIndex] = 1;
+  } else {
+    if (DOT_DIVIDER == 0) {
+      VALUES[valueIndex] = VALUES[valueIndex]*10 + pushedValue;
+    } else {
+      VALUES[valueIndex] = VALUES[valueIndex] + pushedValue;
+    }
+  }
+}
+
 void changeMode(int key)
 {
-  if (DATA_MODE != DATA_MODE_RESULT && PUT[1] == 1) {
+  if (DATA_MODE != DATA_MODE_RESULT && STATUS[1] == 1) {
     calculateResult();
   }
 
   if (DATA_MODE == DATA_MODE_RESULT) {
-    DATA[0] = DATA[2];
-    DATA[1] = 0;
-    PUT[1] = 0;
+    VALUES[0] = VALUES[2];
+    VALUES[1] = 0;
+    STATUS[1] = 0;
   }
 
-  switch (key) {
-    case -3:
-      MODE = MODE_ADDITION;
-      break;
-    case -4:
-      if (PUT[0] == 1) {
-        MODE = MODE_SUBTRACTION;
-      } else {
-        SIGN = -1;
-      }
-      break;
-    case -5:
-      MODE = MODE_MULTIPLICATION;
-      break;
-    case -6:
-      MODE = MODE_DIVISION;
-      break;
-  }
-  if (PUT[0] == 1) {
+  if (STATUS[0] == 1) {
+    MODE = key;
     DATA_MODE = DATA_MODE_SECOND_NUMBER;
-    DOT_MODE = 0;
+    DOT_DIVIDER = 0;
     SIGN = 1;
+  } else if (key == MODE_SUBTRACTION) {
+    SIGN = -1;
   }
+}
+
+void dividingByZeroAnimation()
+{
+  char line[16];
+  int i;
+
+  lcd_gotoxy(0, 0);
+  sprintf(line, "Bledne dzialanie");
+  lcd_string(line);
+
+  lcd_clrline(1);
+  for (i=0; i<16; i++) {
+    lcd_gotoxy(i, 1);
+    sprintf(line, ".");
+    lcd_string(line);
+    _delay_ms(100);
+  }
+
+  DATA_MODE = DATA_MODE_FIRST_NUMBER;
+  MODE = 0;
+  STATUS[0] = 0;
+  STATUS[1] = 0;
+  SIGN = 1;
+  DOT_DIVIDER = 0;
+  VALUES[0] = 0;
+  VALUES[1] = 0;
+  VALUES[2] = 0;
 }
 
 void calculateResult()
 {
   switch (MODE) {
     case MODE_ADDITION:
-      DATA[2] = DATA[0] + DATA[1];
+      VALUES[2] = VALUES[0] + VALUES[1];
       break;
     case MODE_SUBTRACTION:
-      DATA[2] = DATA[0] - DATA[1];
+      VALUES[2] = VALUES[0] - VALUES[1];
       break;
     case MODE_MULTIPLICATION:
-      DATA[2] = DATA[0] * DATA[1];
+      VALUES[2] = VALUES[0] * VALUES[1];
       break;
     case MODE_DIVISION:
-      DATA[2] = DATA[0] / DATA[1];
+      if (VALUES[1] == 0) {
+        dividingByZeroAnimation();
+        return;
+      }
+      VALUES[2] = VALUES[0] / VALUES[1];
       break;
   }
   DATA_MODE = DATA_MODE_RESULT;
 }
 
-void display()
+void displayValues()
 {
-  char line[16] = {0};
+  char line[16];
 
   if (DATA_MODE != DATA_MODE_RESULT) {
-    if (PUT[0] == 1) {
+    if (STATUS[0] == 1) {
       lcd_gotoxy(0, 0);
-      sprintf(line, " %15.8g", DATA[0]);
+      sprintf(line, " %15.7g", VALUES[0]);
       lcd_string(line);
     } else {
       lcd_clrline(0);
     }
-    if (PUT[1] == 1) {
+    if (STATUS[1] == 1) {
       lcd_gotoxy(0, 1);
-      sprintf(line, " %15.8g", DATA[1]);
+      sprintf(line, " %15.7g", VALUES[1]);
       lcd_string(line);
     } else {
       lcd_clrline(1);
@@ -178,7 +193,7 @@ void display()
   } else {
     lcd_clrline(0);
     lcd_gotoxy(1, 1);
-    sprintf(line, "%15.8g", DATA[2]);
+    sprintf(line, "%15.7g", VALUES[2]);
     lcd_string(line);
   }
 
