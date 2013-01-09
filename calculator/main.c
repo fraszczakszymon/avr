@@ -32,6 +32,10 @@ int main(void)
     keyboardPushed = isKeyboardPushed();
     keyIndex = getKeyIndex(col);
 
+    if (keyIndex == -100) {
+      displayValues();
+    }
+
     if (keyboardPushed == 1 && confirmed == 0 && keyIndex != -100) {
       confirmed = 1;
       keyHandler(keyboard[keyIndex]);

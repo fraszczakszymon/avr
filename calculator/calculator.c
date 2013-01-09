@@ -176,13 +176,10 @@ void displayValues()
   char line[16];
 
   if (DATA_MODE != DATA_MODE_RESULT) {
-    if (STATUS[0] == 1) {
-      lcd_gotoxy(0, 0);
-      sprintf(line, " %15.7g", VALUES[0]);
-      lcd_string(line);
-    } else {
-      lcd_clrline(0);
-    }
+    lcd_gotoxy(0, 0);
+    sprintf(line, " %15.7g", VALUES[0]);
+    lcd_string(line);
+
     if (STATUS[1] == 1) {
       lcd_gotoxy(0, 1);
       sprintf(line, " %15.7g", VALUES[1]);
